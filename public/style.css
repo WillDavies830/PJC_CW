@@ -381,3 +381,46 @@
       flex: 1 1 100%;
     }
   }
+
+    /* Add these styles to your style.css file */
+  .role-selector {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 5px 10px;
+    border-radius: var(--border-radius);
+  }
+
+  .role-selector label {
+    color: white;
+    margin-right: 8px;
+    margin-bottom: 0;
+    font-size: 14px;
+  }
+
+  .role-selector select {
+    background-color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  /* Add this class to hide elements based on role */
+  .admin-only {
+    display: none;
+  }
+
+  /* When in admin mode, show admin-only elements */
+  body.admin-role .admin-only {
+    display: block;
+  }
+
+  /* When in admin mode, show admin-only buttons */
+  body.admin-role button.admin-only {
+    display: inline-block;
+  }
