@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
       // Button elements
       this.buttons = {
         createRace: document.getElementById('create-race-button'),
-        deleteRace: document.getElementById('delete_race_button'),
         viewRaces: document.getElementById('view-races-button'),
         cancelCreate: document.getElementById('cancel-create'),
         backToHome: document.getElementById('back-to-home'),
