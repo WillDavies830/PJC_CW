@@ -34,7 +34,7 @@ class RaceControlApp {
       cancelCreate: document.getElementById('cancel-create'),
       backToHome: document.getElementById('back-to-home'),
       startTimer: document.getElementById('start-timer-button'),
-      recordFinish: document.getElementById('record-button'),
+      recordFinish: document.getElementById('record-button'), // This might be removed from HTML
       endRace: document.getElementById('end-race-button'),
       uploadResults: document.getElementById('upload-results-button'),
       clearResults: document.getElementById('clear-results-button'),
@@ -84,7 +84,11 @@ class RaceControlApp {
     
     // Race control buttons
     this.buttons.startTimer.addEventListener('click', () => this.startRace());
-    this.buttons.recordFinish.addEventListener('click', () => this.showRunnerInput());
+    // Only add event listener if record button exists (it might have been removed)
+    if (this.buttons.recordFinish) {
+      // Remove this line if you removed the Record Finish button from HTML
+      this.buttons.recordFinish.addEventListener('click', () => this.refreshElementReferences());
+    }
     this.buttons.endRace.addEventListener('click', () => this.endRace());
     this.buttons.uploadResults.addEventListener('click', () => this.uploadResults());
     this.buttons.clearResults.addEventListener('click', () => this.clearResults());
@@ -100,10 +104,24 @@ class RaceControlApp {
       this.createRace();
     });
     
-    this.forms.recordFinish.addEventListener('submit', (e) => {
-      e.preventDefault();
-      this.recordFinish();
-    });
+    if (this.forms.recordFinish) {
+      this.forms.recordFinish.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.recordFinish();
+      });
+    }
+  }
+
+  /**
+   * Refresh dynamic element references that might not be available at initialization
+   */
+  refreshElementReferences() {
+    // Update runner input references
+    this.elements.runnerInput = document.getElementById('runner-input');
+    this.elements.runnerNumber = document.getElementById('runner-number');
+    
+    // Update form references that might be dynamic
+    this.forms.recordFinish = document.getElementById('record-finish-form');
   }
 
   /**
@@ -188,6 +206,8 @@ class RaceControlApp {
     if (screenId === 'race-control-screen') {
       // Initialize timer display
       this.raceTimer.updateDisplay();
+      // Refresh element references when showing race control screen
+      this.refreshElementReferences();
     }
   }
   
@@ -400,7 +420,9 @@ class RaceControlApp {
       this.currentRaceId = raceId;
       
       // Update the race name display
-      this.elements.raceNameDisplay.textContent = race.name;
+      if (this.elements.raceNameDisplay) {
+        this.elements.raceNameDisplay.textContent = race.name;
+      }
       
       // Reset results
       this.results = [];
@@ -409,20 +431,36 @@ class RaceControlApp {
       // Reset and update timer
       this.raceTimer.reset();
       
+      // Show the race control screen (this will also refresh element references)
+      this.showScreen('race-control-screen');
+      
+      // Make sure we have up-to-date element references
+      this.refreshElementReferences();
+      
       // Update button states based on race status
       if (race.status === 'pending') {
-        this.buttons.startTimer.disabled = false;
-        this.buttons.recordFinish.disabled = true;
-        this.buttons.endRace.disabled = true;
-        this.buttons.uploadResults.disabled = true;
-        this.buttons.clearResults.disabled = true;
-        this.elements.runnerInput.classList.add('hidden');
+        if (this.buttons.startTimer) this.buttons.startTimer.disabled = false;
+        if (this.buttons.recordFinish) this.buttons.recordFinish.disabled = true;
+        if (this.buttons.endRace) this.buttons.endRace.disabled = true;
+        if (this.buttons.uploadResults) this.buttons.uploadResults.disabled = true;
+        if (this.buttons.clearResults) this.buttons.clearResults.disabled = true;
+        
+        // Disable the runner input instead of hiding it
+        if (this.elements.runnerNumber) {
+          this.elements.runnerNumber.disabled = true;
+        }
       } else if (race.status === 'active') {
-        this.buttons.startTimer.disabled = true;
-        this.buttons.recordFinish.disabled = false;
-        this.buttons.endRace.disabled = false;
-        this.buttons.uploadResults.disabled = false;
-        this.buttons.clearResults.disabled = false;
+        if (this.buttons.startTimer) this.buttons.startTimer.disabled = true;
+        if (this.buttons.recordFinish) this.buttons.recordFinish.disabled = false;
+        if (this.buttons.endRace) this.buttons.endRace.disabled = false;
+        if (this.buttons.uploadResults) this.buttons.uploadResults.disabled = false;
+        if (this.buttons.clearResults) this.buttons.clearResults.disabled = false;
+        
+        // Enable the runner input for active races
+        if (this.elements.runnerNumber) {
+          this.elements.runnerNumber.disabled = false;
+          this.elements.runnerNumber.focus();
+        }
         
         // Start the timer with the saved start time
         if (race.startTime) {
@@ -430,12 +468,16 @@ class RaceControlApp {
         }
       } else {
         // Race is completed
-        this.buttons.startTimer.disabled = true;
-        this.buttons.recordFinish.disabled = true;
-        this.buttons.endRace.disabled = true;
-        this.buttons.uploadResults.disabled = false;
-        this.buttons.clearResults.disabled = false;
-        this.elements.runnerInput.classList.add('hidden');
+        if (this.buttons.startTimer) this.buttons.startTimer.disabled = true;
+        if (this.buttons.recordFinish) this.buttons.recordFinish.disabled = true;
+        if (this.buttons.endRace) this.buttons.endRace.disabled = true;
+        if (this.buttons.uploadResults) this.buttons.uploadResults.disabled = false;
+        if (this.buttons.clearResults) this.buttons.clearResults.disabled = false;
+        
+        // Disable the runner input for completed races
+        if (this.elements.runnerNumber) {
+          this.elements.runnerNumber.disabled = true;
+        }
         
         // Show the timer at its final state
         if (race.startTime) {
@@ -449,12 +491,9 @@ class RaceControlApp {
       if (storedData && storedData.raceId === raceId && storedData.results) {
         this.results = storedData.results;
         this.updateResultsList();
-        this.buttons.uploadResults.disabled = false;
-        this.buttons.clearResults.disabled = false;
+        if (this.buttons.uploadResults) this.buttons.uploadResults.disabled = false;
+        if (this.buttons.clearResults) this.buttons.clearResults.disabled = false;
       }
-      
-      // Show the race control screen
-      this.showScreen('race-control-screen');
       
     } catch (error) {
       console.error('Load race control error:', error);
@@ -510,11 +549,18 @@ class RaceControlApp {
       };
       
       // Update button states
-      this.buttons.startTimer.disabled = true;
-      this.buttons.recordFinish.disabled = false;
-      this.buttons.endRace.disabled = false;
-      this.buttons.uploadResults.disabled = false;
-      this.buttons.clearResults.disabled = false;
+      if (this.buttons.startTimer) this.buttons.startTimer.disabled = true;
+      if (this.buttons.recordFinish) this.buttons.recordFinish.disabled = false;
+      if (this.buttons.endRace) this.buttons.endRace.disabled = false;
+      if (this.buttons.uploadResults) this.buttons.uploadResults.disabled = false;
+      if (this.buttons.clearResults) this.buttons.clearResults.disabled = false;
+      
+      // Refresh element references and enable runner input
+      this.refreshElementReferences();
+      if (this.elements.runnerNumber) {
+        this.elements.runnerNumber.disabled = false;
+        this.elements.runnerNumber.focus();
+      }
       
       showNotification('Race started', 3000);
       
@@ -522,21 +568,6 @@ class RaceControlApp {
       console.error('Start race error:', error);
       showNotification('Failed to start race', 3000);
     }
-  }
-  
-  /**
-   * Show the runner input form
-   */
-  showRunnerInput() {
-    // Check if user has admin permissions
-    if (!this.isAdmin()) {
-      showNotification('You do not have permission to record finishes', 3000);
-      return;
-    }
-    
-    this.elements.runnerInput.classList.remove('hidden');
-    this.elements.runnerNumber.value = '';
-    this.elements.runnerNumber.focus();
   }
   
   /**
@@ -556,6 +587,15 @@ class RaceControlApp {
     
     if (!this.raceTimer.isRunning) {
       showNotification('Race timer not running', 3000);
+      return;
+    }
+    
+    // Refresh element references
+    this.refreshElementReferences();
+    
+    // Safely get the runner number
+    if (!this.elements.runnerNumber) {
+      showNotification('Runner input not available', 3000);
       return;
     }
     
@@ -591,12 +631,13 @@ class RaceControlApp {
     // Update the results list
     this.updateResultsList();
     
-    // Hide the runner input
-    this.elements.runnerInput.classList.add('hidden');
+    // Reset the input field for next entry
+    this.elements.runnerNumber.value = '';
+    this.elements.runnerNumber.focus();
     
     // Enable upload and clear buttons
-    this.buttons.uploadResults.disabled = false;
-    this.buttons.clearResults.disabled = false;
+    if (this.buttons.uploadResults) this.buttons.uploadResults.disabled = false;
+    if (this.buttons.clearResults) this.buttons.clearResults.disabled = false;
     
     showNotification(`Runner ${runnerNumber} recorded`, 2000);
   }
@@ -681,9 +722,15 @@ class RaceControlApp {
       };
       
       // Update button states
-      this.buttons.startTimer.disabled = true;
-      this.buttons.recordFinish.disabled = true;
-      this.buttons.endRace.disabled = true;
+      if (this.buttons.startTimer) this.buttons.startTimer.disabled = true;
+      if (this.buttons.recordFinish) this.buttons.recordFinish.disabled = true;
+      if (this.buttons.endRace) this.buttons.endRace.disabled = true;
+      
+      // Refresh element references and disable runner input
+      this.refreshElementReferences();
+      if (this.elements.runnerNumber) {
+        this.elements.runnerNumber.disabled = true;
+      }
       
       showNotification('Race ended', 3000);
       
@@ -751,8 +798,8 @@ class RaceControlApp {
       window.offlineStorage.clearResults();
       
       // Update button states
-      this.buttons.uploadResults.disabled = true;
-      this.buttons.clearResults.disabled = true;
+      if (this.buttons.uploadResults) this.buttons.uploadResults.disabled = true;
+      if (this.buttons.clearResults) this.buttons.clearResults.disabled = true;
       
       showNotification('Results uploaded successfully', 3000);
       
@@ -782,8 +829,8 @@ class RaceControlApp {
       window.offlineStorage.clearResults();
       
       // Update button states
-      this.buttons.uploadResults.disabled = true;
-      this.buttons.clearResults.disabled = true;
+      if (this.buttons.uploadResults) this.buttons.uploadResults.disabled = true;
+      if (this.buttons.clearResults) this.buttons.clearResults.disabled = true;
       
       showNotification('Results cleared', 3000);
     }
@@ -905,51 +952,55 @@ class RaceControlApp {
       const results = await resultsResponse.json();
       
       // Update the race name display
-      this.elements.resultsRaceName.textContent = race.name;
+      if (this.elements.resultsRaceName) {
+        this.elements.resultsRaceName.textContent = race.name;
+      }
       
       // Clear the results container
-      this.elements.resultsTableContainer.innerHTML = '';
-      
-      if (results.length === 0) {
-        this.elements.resultsTableContainer.innerHTML = '<p>No results available for this race</p>';
-      } else {
-        // Sort results by race time (ascending)
-        const sortedResults = [...results].sort((a, b) => a.raceTime - b.raceTime);
+      if (this.elements.resultsTableContainer) {
+        this.elements.resultsTableContainer.innerHTML = '';
         
-        // Create the results table
-        const table = document.createElement('table');
-        table.innerHTML = `
-          <thead>
-            <tr>
-              <th>Position</th>
-              <th>Runner</th>
-              <th>Race Time</th>
-              <th>Finish Time</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        `;
-        
-        const tbody = table.querySelector('tbody');
-        
-        // Add each result to the table
-        sortedResults.forEach((result, index) => {
-          const position = index + 1;
-          const raceTimeFormatted = this.formatTimeDisplay(result.raceTime);
-          const finishTimeFormatted = new Date(result.finishTime).toLocaleTimeString();
+        if (results.length === 0) {
+          this.elements.resultsTableContainer.innerHTML = '<p>No results available for this race</p>';
+        } else {
+          // Sort results by race time (ascending)
+          const sortedResults = [...results].sort((a, b) => a.raceTime - b.raceTime);
           
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${position}</td>
-            <td>${result.runnerNumber}</td>
-            <td>${raceTimeFormatted}</td>
-            <td>${finishTimeFormatted}</td>
+          // Create the results table
+          const table = document.createElement('table');
+          table.innerHTML = `
+            <thead>
+              <tr>
+                <th>Position</th>
+                <th>Runner</th>
+                <th>Race Time</th>
+                <th>Finish Time</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
           `;
           
-          tbody.appendChild(row);
-        });
-        
-        this.elements.resultsTableContainer.appendChild(table);
+          const tbody = table.querySelector('tbody');
+          
+          // Add each result to the table
+          sortedResults.forEach((result, index) => {
+            const position = index + 1;
+            const raceTimeFormatted = this.formatTimeDisplay(result.raceTime);
+            const finishTimeFormatted = new Date(result.finishTime).toLocaleTimeString();
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${position}</td>
+              <td>${result.runnerNumber}</td>
+              <td>${raceTimeFormatted}</td>
+              <td>${finishTimeFormatted}</td>
+            `;
+            
+            tbody.appendChild(row);
+          });
+          
+          this.elements.resultsTableContainer.appendChild(table);
+        }
       }
       
       // Show the results screen

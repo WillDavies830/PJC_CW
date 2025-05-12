@@ -424,3 +424,18 @@
   body.admin-role button.admin-only {
     display: inline-block;
   }
+
+  /* Make the runner input more prominent */
+#runner-input {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: var(--card-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+/* For when the input is disabled */
+#runner-number:disabled {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
