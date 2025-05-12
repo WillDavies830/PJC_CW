@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Race Control - Portsmouth Joggers' Club">
+  <title>Race Control - PJC</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2196F3">
+</head>
+<body>
+  <header>
+    <h1>Race Control</h1>
+    <div id="connection-status" class="online">Online</div>
+  </header>
+
+  <main>
+    <div id="home-screen" class="screen active">
+      <h2>Portsmouth Joggers' Club</h2>
+      <div class="button-container">
+        <button id="create-race-button" class="primary-button">Create New Race</button>
+        <button id="view-races-button" class="primary-button">View Races</button>
+      </div>
+      <div id="sync-status" class="hidden">
+        <p>You have unsynchronized race data</p>
+        <button id="sync-now-button" class="action-button">Sync Now</button>
+      </div>
+    </div>
+
+    <div id="create-race-screen" class="screen">
+      <h2>Create New Race</h2>
+      <form id="create-race-form">
+        <div class="form-group">
+          <label for="race-name">Race Name:</label>
+          <input type="text" id="race-name" required>
+        </div>
+        <div class="form-group">
+          <label for="race-date">Race Date:</label>
+          <input type="date" id="race-date" required>
+        </div>
+        <div class="button-container">
+          <button type="submit" class="primary-button">Create Race</button>
+          <button type="button" id="cancel-create" class="secondary-button">Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="races-list-screen" class="screen">
+      <h2>Available Races</h2>
+      <div id="races-container"></div>
+      <div class="button-container">
+        <button id="back-to-home" class="secondary-button">Back</button>
+      </div>
+    </div>
+
+    <div id="race-control-screen" class="screen">
+      <h2 id="race-name-display"></h2>
+      <div id="timer-display">00:00:00</div>
+      <div id="timer-controls">
+        <button id="start-timer-button" class="action-button">Start Race</button>
+        <button id="record-button" class="action-button" disabled>Record Finish</button>
+        <button id="end-race-button" class="action-button" disabled>End Race</button>
+      </div>
+
+      <div id="runner-input" class="hidden">
+        <form id="record-finish-form">
+          <div class="form-group">
+            <label for="runner-number">Runner Number:</label>
+            <input type="number" id="runner-number" min="1" required>
+          </div>
+          <button type="submit" class="primary-button">Record</button>
+        </form>
+      </div>
+
+      <div id="recorded-results">
+        <h3>Recorded Results</h3>
+        <div id="results-list"></div>
+      </div>
+
+      <div class="button-container">
+        <button id="upload-results-button" class="primary-button" disabled>Upload Results</button>
+        <button id="clear-results-button" class="secondary-button" disabled>Clear Results</button>
+        <button id="back-to-races" class="secondary-button">Back</button>
+      </div>
+    </div>
+
+    <div id="results-screen" class="screen">
+      <h2 id="results-race-name"></h2>
+      <div id="results-table-container"></div>
+      <div class="button-container">
+        <button id="back-from-results" class="secondary-button">Back</button>
+      </div>
+    </div>
+  </main>
+
+  <div id="notification" class="notification hidden"></div>
+
+  <script src="offline.js"></script>
+  <script src="timer.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
