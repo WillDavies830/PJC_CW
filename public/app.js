@@ -604,6 +604,16 @@ class RaceControlApp {
       showNotification('Invalid runner number', 3000);
       return;
     }
+
+    // Check if this runner number has already been recorded
+    const runnerExists = this.results.some(result => result.runnerNumber === runnerNumber);
+    if (runnerExists) {
+      showNotification(`Runner ${runnerNumber} has already been recorded`, 3000);
+      // Optionally clear the input field for next entry
+      this.elements.runnerNumber.value = '';
+      this.elements.runnerNumber.focus();
+      return;
+    }
     
     // Record the finish time
     const finishTime = this.raceTimer.recordFinish();

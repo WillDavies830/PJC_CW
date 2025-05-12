@@ -88,45 +88,77 @@ app.post('/api/races/:id/results', (req, res) => {
     return res.status(400).json({ error: 'Results array is required' });
   }
 
-  // Begin transaction
-  db.serialize(() => {
-    db.run('BEGIN TRANSACTION');
-
-    let hasError = false;
-    const uploadedAt = Date.now();
-
-    // Insert each result
-    results.forEach(result => {
-      if (hasError) return;
-
-      const { runnerNumber, finishTime } = result;
-      
-      if (!runnerNumber || !finishTime) {
-        hasError = true;
-        return res.status(400).json({ error: 'Runner number and finish time are required for each result' });
+  // First check for existing runner numbers
+  db.all('SELECT runnerNumber FROM results WHERE raceId = ?', [raceId], (err, existingResults) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    
+    // Create a set of existing runner numbers for efficient lookup
+    const existingRunnerNumbers = new Set(existingResults.map(r => r.runnerNumber));
+    
+    // Check for duplicates in the request
+    const requestRunnerNumbers = new Set();
+    const duplicates = [];
+    
+    for (const result of results) {
+      if (existingRunnerNumbers.has(result.runnerNumber)) {
+        duplicates.push(result.runnerNumber);
+      } else if (requestRunnerNumbers.has(result.runnerNumber)) {
+        duplicates.push(result.runnerNumber);
+      } else {
+        requestRunnerNumbers.add(result.runnerNumber);
       }
-
-      db.run(
-        'INSERT INTO results (raceId, runnerNumber, finishTime, uploadedBy, uploadedAt) VALUES (?, ?, ?, ?, ?)',
-        [raceId, runnerNumber, finishTime, deviceId, uploadedAt],
-        function(err) {
-          if (err) {
-            hasError = true;
-            db.run('ROLLBACK');
-            return res.status(500).json({ error: err.message });
-          }
-        }
-      );
-    });
-
-    if (!hasError) {
-      db.run('COMMIT', err => {
-        if (err) {
-          return res.status(500).json({ error: err.message });
-        }
-        res.json({ success: true, message: `${results.length} results saved successfully` });
+    }
+    
+    if (duplicates.length > 0) {
+      return res.status(400).json({ 
+        error: 'Duplicate runner numbers detected', 
+        duplicates 
       });
     }
+    
+    // If no duplicates, proceed with inserting the results
+    // Begin transaction
+    db.serialize(() => {
+      db.run('BEGIN TRANSACTION');
+
+      let hasError = false;
+      const uploadedAt = Date.now();
+
+      // Insert each result
+      results.forEach(result => {
+        if (hasError) return;
+
+        const { runnerNumber, finishTime } = result;
+        
+        if (!runnerNumber || !finishTime) {
+          hasError = true;
+          return res.status(400).json({ error: 'Runner number and finish time are required for each result' });
+        }
+
+        db.run(
+          'INSERT INTO results (raceId, runnerNumber, finishTime, uploadedBy, uploadedAt) VALUES (?, ?, ?, ?, ?)',
+          [raceId, runnerNumber, finishTime, deviceId, uploadedAt],
+          function(err) {
+            if (err) {
+              hasError = true;
+              db.run('ROLLBACK');
+              return res.status(500).json({ error: err.message });
+            }
+          }
+        );
+      });
+
+      if (!hasError) {
+        db.run('COMMIT', err => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+          res.json({ success: true, message: `${results.length} results saved successfully` });
+        });
+      }
+    });
   });
 });
 
