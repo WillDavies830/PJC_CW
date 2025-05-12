@@ -314,3 +314,70 @@
   #recorded-results h3 {
     margin-top: 20px;
   }
+
+  /* Add these styles to your style.css file */
+  .danger-button {
+    background-color: #e74c3c;
+    color: var(--button-text);
+  }
+
+  .danger-button:hover:not(:disabled) {
+    background-color: #c0392b;
+  }
+
+  /* Update the race-card-buttons to handle 3 buttons */
+  .race-card-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .race-card-buttons button {
+    flex: 1;
+    min-width: 100px;
+  }
+
+  /* Responsive adjustments for mobile screens */
+  @media (max-width: 600px) {
+    .race-card-buttons {
+      flex-direction: column;
+    }
+  }
+
+    /* Add these styles to your style.css file */
+  .export-button {
+    background-color: #27ae60;
+    color: var(--button-text);
+  }
+
+  .export-button:hover:not(:disabled) {
+    background-color: #219653;
+  }
+
+  /* Update the race-card-buttons to handle 4 buttons with better wrapping */
+  .race-card-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .race-card-buttons button {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 120px;
+    margin-bottom: 8px;
+  }
+
+  /* Responsive adjustments for mobile screens */
+  @media (max-width: 600px) {
+    .race-card-buttons {
+      flex-direction: column;
+    }
+    
+    .race-card-buttons button {
+      flex: 1 1 100%;
+    }
+  }

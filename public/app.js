@@ -537,6 +537,207 @@ document.addEventListener('DOMContentLoaded', () => {
         showNotification('Failed to end race', 3000);
       }
     }
+
+        /**
+     * Add this method to the RaceControlApp class
+     * Delete a race
+     * @param {number} raceId - The ID of the race to delete
+     */
+    async deleteRace(raceId) {
+      if (!confirm('Are you sure you want to delete this race? This action cannot be undone.')) {
+        return;
+      }
+      
+      try {
+        // Check if we're online first
+        if (!window.offlineStorage.isDeviceOnline()) {
+          showNotification('Cannot delete races while offline', 3000);
+          return;
+        }
+        
+        const response = await fetch(`/api/races/${raceId}`, {
+          method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to delete race');
+        }
+        
+        showNotification('Race deleted successfully', 3000);
+        
+        // Reload the races list
+        this.loadRaces();
+        
+      } catch (error) {
+        console.error('Delete race error:', error);
+        showNotification('Failed to delete race', 3000);
+      }
+    }
+
+    /**
+ * Load the list of races
+ */
+    async loadRaces() {
+      try {
+        // Check if we're online first
+        if (!window.offlineStorage.isDeviceOnline()) {
+          showNotification('Cannot load races while offline', 3000);
+          return;
+        }
+        
+        const response = await fetch('/api/races');
+        
+        if (!response.ok) {
+          throw new Error('Failed to load races');
+        }
+        
+        const races = await response.json();
+        
+        // Clear the container
+        this.elements.racesContainer.innerHTML = '';
+        
+        if (races.length === 0) {
+          this.elements.racesContainer.innerHTML = '<p>No races found</p>';
+        } else {
+          // Add each race to the container
+          races.forEach(race => {
+            const raceCard = document.createElement('div');
+            raceCard.className = 'race-card';
+            
+            const status = race.status === 'pending' ? 'Not Started' : 
+                          race.status === 'active' ? 'In Progress' : 'Completed';
+            
+            const date = new Date(race.date).toLocaleDateString();
+            
+            raceCard.innerHTML = `
+              <h3>${race.name}</h3>
+              <p>Date: ${date}</p>
+              <p>Status: ${status}</p>
+              <div class="race-card-buttons">
+                <button class="primary-button control-button">Control Race</button>
+                <button class="secondary-button results-button">View Results</button>
+                <button class="export-button export-csv-button">Export CSV</button>
+                <button class="danger-button delete-button">Delete Race</button>
+              </div>
+            `;
+            
+            // Add event listeners
+            raceCard.querySelector('.control-button').addEventListener('click', () => {
+              this.loadRaceControl(race.id);
+            });
+            
+            raceCard.querySelector('.results-button').addEventListener('click', () => {
+              this.loadRaceResults(race.id);
+            });
+            
+            raceCard.querySelector('.export-csv-button').addEventListener('click', (e) => {
+              e.stopPropagation();
+              this.exportRaceResults(race.id, race.name);
+            });
+            
+            raceCard.querySelector('.delete-button').addEventListener('click', (e) => {
+              // Stop event propagation to prevent other handlers from firing
+              e.stopPropagation();
+              this.deleteRace(race.id);
+            });
+            
+            this.elements.racesContainer.appendChild(raceCard);
+          });
+        }
+        
+        // Show the races list screen
+        this.showScreen('races-list-screen');
+        
+      } catch (error) {
+        console.error('Load races error:', error);
+        showNotification('Failed to load races', 3000);
+      }
+    }
+
+        /**
+     * Export race results to CSV
+     * @param {number} raceId - The ID of the race to export
+     * @param {string} raceName - The name of the race
+     */
+    async exportRaceResults(raceId, raceName) {
+      try {
+        // Check if we're online first
+        if (!window.offlineStorage.isDeviceOnline()) {
+          showNotification('Cannot export results while offline', 3000);
+          return;
+        }
+        
+        showNotification('Preparing export...', 2000);
+        
+        // Fetch race details
+        const raceResponse = await fetch(`/api/races/${raceId}`);
+        
+        if (!raceResponse.ok) {
+          throw new Error('Failed to load race details');
+        }
+        
+        const race = await raceResponse.json();
+        
+        // Fetch race results
+        const resultsResponse = await fetch(`/api/races/${raceId}/results`);
+        
+        if (!resultsResponse.ok) {
+          throw new Error('Failed to load race results');
+        }
+        
+        const results = await resultsResponse.json();
+        
+        // If no results, show a message
+        if (results.length === 0) {
+          showNotification('No results available to export', 3000);
+          return;
+        }
+        
+        // Sort results by race time (ascending)
+        const sortedResults = [...results].sort((a, b) => a.raceTime - b.raceTime);
+        
+        // Format the race date
+        const raceDate = new Date(race.date).toLocaleDateString();
+        
+        // Create CSV content
+        let csvContent = 'data:text/csv;charset=utf-8,';
+        
+        // Add header row
+        csvContent += 'Position,Runner Number,Race Time,Finish Time\n';
+        
+        // Add data rows
+        sortedResults.forEach((result, index) => {
+          const position = index + 1;
+          const raceTimeFormatted = this.formatTimeDisplay(result.raceTime);
+          const finishTimeFormatted = new Date(result.finishTime).toLocaleTimeString();
+          
+          csvContent += `${position},${result.runnerNumber},"${raceTimeFormatted}","${finishTimeFormatted}"\n`;
+        });
+        
+        // Create a filename with race name and date
+        const sanitizedRaceName = raceName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const filename = `${sanitizedRaceName}_results_${raceDate.replace(/\//g, '-')}.csv`;
+        
+        // Create download link
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        
+        // Trigger download
+        link.click();
+        
+        // Clean up
+        document.body.removeChild(link);
+        
+        showNotification('Export completed', 3000);
+        
+      } catch (error) {
+        console.error('Export race results error:', error);
+        showNotification('Failed to export results', 3000);
+      }
+    }
     
     /**
      * Upload race results to the server

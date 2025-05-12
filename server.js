@@ -178,6 +178,44 @@ app.get('/api/races/:id', (req, res) => {
   });
 });
 
+// Add this new route to server.js before the catch-all route
+// Route to delete a race
+app.delete('/api/races/:id', (req, res) => {
+  const raceId = req.params.id;
+
+  db.serialize(() => {
+    db.run('BEGIN TRANSACTION');
+    
+    // First delete all results associated with the race
+    db.run('DELETE FROM results WHERE raceId = ?', [raceId], function(err) {
+      if (err) {
+        db.run('ROLLBACK');
+        return res.status(500).json({ error: err.message });
+      }
+      
+      // Then delete the race itself
+      db.run('DELETE FROM races WHERE id = ?', [raceId], function(err) {
+        if (err) {
+          db.run('ROLLBACK');
+          return res.status(500).json({ error: err.message });
+        }
+        
+        if (this.changes === 0) {
+          db.run('ROLLBACK');
+          return res.status(404).json({ error: 'Race not found' });
+        }
+        
+        db.run('COMMIT', err => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+          res.json({ success: true, message: 'Race deleted successfully' });
+        });
+      });
+    });
+  });
+});
+
 // Route to serve the main app
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
