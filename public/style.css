@@ -1,431 +1,273 @@
 :root {
-    --primary-color: #3498db;
-    --secondary-color: #2980b9;
-    --accent-color: #e74c3c;
-    --text-color: #333;
-    --background-color: #f5f5f5;
-    --card-color: #fff;
-    --button-text: #fff;
-    --border-radius: 8px;
-    --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    --spacing: 16px;
-  }
-  
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-  
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    line-height: 1.6;
-    padding: 0;
-    margin: 0;
-  }
-  
-  header {
-    background-color: var(--primary-color);
-    color: white;
-    padding: var(--spacing);
-    text-align: center;
-    position: relative;
-    box-shadow: var(--box-shadow);
-  }
-  
-  h1, h2, h3 {
-    margin-bottom: var(--spacing);
-    text-align: center;
-  }
-  
-  main {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: var(--spacing);
-  }
-  
-  .screen {
-    display: none;
-    animation: fadeIn 0.3s ease-in-out;
-  }
-  
-  .screen.active {
-    display: block;
-  }
-  
-  .button-container {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin: 20px 0;
-  }
-  
-  button {
-    padding: 14px 20px;
-    border: none;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    transition: background-color 0.2s, transform 0.1s;
-  }
-  
-  button:active {
-    transform: scale(0.98);
-  }
-  
-  button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  
-  .primary-button {
-    background-color: var(--primary-color);
-    color: var(--button-text);
-  }
-  
-  .primary-button:hover:not(:disabled) {
-    background-color: var(--secondary-color);
-  }
-  
-  .secondary-button {
-    background-color: #95a5a6;
-    color: var(--button-text);
-  }
-  
-  .secondary-button:hover:not(:disabled) {
-    background-color: #7f8c8d;
-  }
-  
-  .action-button {
-    background-color: var(--accent-color);
-    color: var(--button-text);
-    font-size: 18px;
-    padding: 16px 24px;
-  }
-  
-  .action-button:hover:not(:disabled) {
-    background-color: #c0392b;
-  }
-  
-  .form-group {
-    margin-bottom: 15px;
-  }
-  
-  label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-  }
-  
-  input {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: var(--border-radius);
-    font-size: 16px;
-  }
-  
-  input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-  }
-  
-  #connection-status {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: bold;
-  }
-  
-  #connection-status.online {
-    background-color: #2ecc71;
-    color: white;
-  }
-  
-  #connection-status.offline {
-    background-color: #e74c3c;
-    color: white;
-  }
-  
-  #timer-display {
-    font-size: 48px;
-    font-weight: bold;
-    text-align: center;
-    margin: 20px 0;
-    font-family: monospace;
-  }
-  
-  #timer-controls {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin: 20px 0;
-    flex-wrap: wrap;
-  }
-  
-  .race-card {
-    background-color: var(--card-color);
-    border-radius: var(--border-radius);
-    padding: var(--spacing);
-    margin-bottom: var(--spacing);
-    box-shadow: var(--box-shadow);
-  }
-  
-  .race-card h3 {
-    margin-bottom: 8px;
-  }
-  
-  .race-card-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 12px;
-  }
-  
-  #results-list {
-    max-height: 300px;
-    overflow-y: auto;
-    margin: 15px 0;
-    border: 1px solid #ddd;
-    border-radius: var(--border-radius);
-    padding: 10px;
-  }
-  
-  .result-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .result-item:last-child {
-    border-bottom: none;
-  }
-  
-  .hidden {
-    display: none;
-  }
-  
-  .notification {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 12px 20px;
-    border-radius: var(--border-radius);
-    z-index: 1000;
-    transition: opacity 0.3s;
-  }
-  
-  .notification.hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    background-color: var(--card-color);
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    box-shadow: var(--box-shadow);
-  }
-  
-  th, td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  th {
-    background-color: var(--primary-color);
-    color: white;
-    font-weight: bold;
-  }
-  
-  tr:last-child td {
-    border-bottom: none;
-  }
-  
-  tr:nth-child(even) {
-    background-color: rgba(0, 0, 0, 0.02);
-  }
-  
-  /* Accessibility improvements */
-  @media (prefers-reduced-motion) {
-    .screen {
-      animation: none;
-    }
-  }
-  
-  /* Responsive design for small screens */
-  @media (max-width: 600px) {
-    #timer-display {
-      font-size: 36px;
-    }
-    
-    button {
-      padding: 16px;
-      font-size: 18px;
-    }
-  
-    .action-button {
-      padding: 18px;
-      font-size: 20px;
-    }
-    
-    th, td {
-      padding: 8px 10px;
-      font-size: 14px;
-    }
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  #sync-status {
-    background-color: #f39c12;
-    color: white;
-    padding: 10px;
-    border-radius: var(--border-radius);
-    margin: 15px 0;
-    text-align: center;
-  }
-  
-  #runner-input {
-    margin: 20px 0;
-    padding: 15px;
-    background-color: var(--card-color);
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-  }
-  
-  #recorded-results h3 {
-    margin-top: 20px;
-  }
+  --primary-color: #3498db;
+  --secondary-color: #2980b9;
+  --accent-color: #e74c3c;
+  --text-color: #333;
+  --background-color: #f5f5f5;
+  --card-color: #fff;
+  --button-text: #fff;
+  --border-radius: 8px;
+  --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  --spacing: 16px;
+  --success-color: #2ecc71;
+  --danger-color: #e74c3c;
+  --warning-color: #f39c12;
+  --export-color: #27ae60;
+  --export-hover-color: #219653;
+}
 
-  /* Add these styles to your style.css file */
-  .danger-button {
-    background-color: #e74c3c;
-    color: var(--button-text);
-  }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-  .danger-button:hover:not(:disabled) {
-    background-color: #c0392b;
-  }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  padding: 0;
+  margin: 0;
+}
 
-  /* Update the race-card-buttons to handle 3 buttons */
-  .race-card-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 12px;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
+header {
+  background-color: var(--primary-color);
+  color: white;
+  padding: var(--spacing);
+  text-align: center;
+  position: relative;
+  box-shadow: var(--box-shadow);
+}
 
-  .race-card-buttons button {
-    flex: 1;
-    min-width: 100px;
-  }
+h1, h2, h3 {
+  margin-bottom: var(--spacing);
+  text-align: center;
+}
 
-  /* Responsive adjustments for mobile screens */
-  @media (max-width: 600px) {
-    .race-card-buttons {
-      flex-direction: column;
-    }
-  }
+main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--spacing);
+}
 
-    /* Add these styles to your style.css file */
-  .export-button {
-    background-color: #27ae60;
-    color: var(--button-text);
-  }
+/* Screen Transitions */
+.screen {
+  display: none;
+  animation: fadeIn 0.3s ease-in-out;
+}
 
-  .export-button:hover:not(:disabled) {
-    background-color: #219653;
-  }
+.screen.active {
+  display: block;
+}
 
-  /* Update the race-card-buttons to handle 4 buttons with better wrapping */
-  .race-card-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 12px;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
+/* Button Styles */
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+}
 
-  .race-card-buttons button {
-    flex: 1 1 calc(50% - 8px);
-    min-width: 120px;
-    margin-bottom: 8px;
-  }
+button {
+  padding: 14px 20px;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.2s, transform 0.1s;
+}
 
-  /* Responsive adjustments for mobile screens */
-  @media (max-width: 600px) {
-    .race-card-buttons {
-      flex-direction: column;
-    }
-    
-    .race-card-buttons button {
-      flex: 1 1 100%;
-    }
-  }
+button:active {
+  transform: scale(0.98);
+}
 
-    /* Add these styles to your style.css file */
-  .role-selector {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    display: flex;
-    align-items: center;
-    background-color: rgba(255, 255, 255, 0.2);
-    padding: 5px 10px;
-    border-radius: var(--border-radius);
-  }
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
-  .role-selector label {
-    color: white;
-    margin-right: 8px;
-    margin-bottom: 0;
-    font-size: 14px;
-  }
+button:not(:disabled):hover {
+  filter: brightness(0.9);
+}
 
-  .role-selector select {
-    background-color: white;
-    border: none;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 14px;
-    cursor: pointer;
-  }
+.primary-button {
+  background-color: var(--primary-color);
+  color: var(--button-text);
+}
 
-  /* Add this class to hide elements based on role */
-  .admin-only {
-    display: none;
-  }
+.primary-button:hover:not(:disabled) {
+  background-color: var(--secondary-color);
+}
 
-  /* When in admin mode, show admin-only elements */
-  body.admin-role .admin-only {
-    display: block;
-  }
+.secondary-button {
+  background-color: #95a5a6;
+  color: var(--button-text);
+}
 
-  /* When in admin mode, show admin-only buttons */
-  body.admin-role button.admin-only {
-    display: inline-block;
-  }
+.secondary-button:hover:not(:disabled) {
+  background-color: #7f8c8d;
+}
 
-  /* Make the runner input more prominent */
+.action-button {
+  background-color: var(--accent-color);
+  color: var(--button-text);
+  font-size: 18px;
+  padding: 16px 24px;
+}
+
+.action-button:hover:not(:disabled) {
+  background-color: #c0392b;
+}
+
+.danger-button {
+  background-color: var(--danger-color);
+  color: var(--button-text);
+}
+
+.danger-button:hover:not(:disabled) {
+  background-color: #c0392b;
+}
+
+.export-button {
+  background-color: var(--export-color);
+  color: var(--button-text);
+}
+
+.export-button:hover:not(:disabled) {
+  background-color: var(--export-hover-color);
+}
+
+/* Form Elements */
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: var(--border-radius);
+  font-size: 16px;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+input:disabled {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
+
+/* Status Indicators */
+#connection-status {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+#connection-status.online {
+  background-color: var(--success-color);
+  color: white;
+}
+
+#connection-status.offline {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+#sync-status {
+  background-color: var(--warning-color);
+  color: white;
+  padding: 10px;
+  border-radius: var(--border-radius);
+  margin: 15px 0;
+  text-align: center;
+}
+
+/* Timer Elements */
+#timer-display {
+  font-size: 48px;
+  font-weight: bold;
+  text-align: center;
+  margin: 20px 0;
+  font-family: monospace;
+}
+
+#timer-controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+/* Race Cards */
+.race-card {
+  background-color: var(--card-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing);
+  margin-bottom: var(--spacing);
+  box-shadow: var(--box-shadow);
+}
+
+.race-card h3 {
+  margin-bottom: 8px;
+}
+
+.race-card-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.race-card-buttons button {
+  flex: 1 1 calc(50% - 8px);
+  min-width: 120px;
+  margin-bottom: 8px;
+}
+
+/* Results Display */
+#results-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 15px 0;
+  border: 1px solid #ddd;
+  border-radius: var(--border-radius);
+  padding: 10px;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.result-item:last-child {
+  border-bottom: none;
+}
+
+#recorded-results h3 {
+  margin-top: 20px;
+}
+
 #runner-input {
   margin: 20px 0;
   padding: 15px;
@@ -434,8 +276,140 @@
   box-shadow: var(--box-shadow);
 }
 
-/* For when the input is disabled */
-#runner-number:disabled {
-  background-color: #f0f0f0;
-  cursor: not-allowed;
+/* Notification */
+.notification {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 12px 20px;
+  border-radius: var(--border-radius);
+  z-index: 1000;
+  transition: opacity 0.3s;
+}
+
+.notification.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Table Styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  background-color: var(--card-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--box-shadow);
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: bold;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Role Selector */
+.role-selector {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 5px 10px;
+  border-radius: var(--border-radius);
+  z-index: 100;
+}
+
+.role-selector label {
+  color: white;
+  margin-right: 8px;
+  margin-bottom: 0;
+  font-size: 14px;
+}
+
+.role-selector select {
+  background-color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Role-based visibility */
+.admin-only {
+  display: none;
+}
+
+body.admin-role .admin-only {
+  display: block;
+}
+
+body.admin-role button.admin-only {
+  display: inline-block;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Accessibility and Responsive Design */
+@media (prefers-reduced-motion) {
+  .screen {
+    animation: none;
+  }
+}
+
+@media (max-width: 600px) {
+  #timer-display {
+    font-size: 36px;
+  }
+  
+  button {
+    padding: 16px;
+    font-size: 18px;
+  }
+
+  .action-button {
+    padding: 18px;
+    font-size: 20px;
+  }
+  
+  th, td {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+  
+  .race-card-buttons {
+    flex-direction: column;
+  }
+  
+  .race-card-buttons button {
+    flex: 1 1 100%;
+  }
 }
