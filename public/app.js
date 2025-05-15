@@ -16,7 +16,6 @@ class RaceControlApp {
     this.currentRace = null;
     this.raceTimer = new RaceTimer();
     this.results = [];
-    this.userRole = localStorage.getItem('userRole') || 'admin';
     
     // Cache DOM elements
     this.screens = {
@@ -66,7 +65,6 @@ class RaceControlApp {
    */
   init() {
     this.bindEventListeners();
-    this.initRoleBasedAccess();
     this.showScreen('home-screen');
   }
   
@@ -125,101 +123,9 @@ class RaceControlApp {
   }
 
   /**
-   * Initialize role-based access control
-   */
-  initRoleBasedAccess() {
-    // Get the role selector element
-    const roleSelector = document.getElementById('user-role');
-    
-    if (roleSelector) {
-      // Set the initial value based on saved preference
-      roleSelector.value = this.userRole;
-      
-      // Update body class based on role
-      document.body.classList.toggle('admin-role', this.userRole === 'admin');
-      
-      // Add change event listener
-      roleSelector.addEventListener('change', (e) => {
-        this.userRole = e.target.value;
-        localStorage.setItem('userRole', this.userRole);
-        
-        // Update body class
-        document.body.classList.toggle('admin-role', this.userRole === 'admin');
-        
-        // If on the home screen, update visible buttons
-        if (this.currentScreen === 'home-screen') {
-          this.updateHomeScreenButtons();
-        } else if (this.currentScreen === 'races-list-screen') {
-          // If on the races list screen, refresh the view
-          this.loadRaces();
-        }
-      });
-    }
-    
-    // Update home screen buttons initially
-    this.updateHomeScreenButtons();
-  }
-
-  /**
-   * Update home screen buttons based on role
-   */
-  updateHomeScreenButtons() {
-    if (this.buttons.createRace) {
-      this.buttons.createRace.classList.toggle('admin-only', true);
-      
-      // Show/hide based on role
-      if (this.userRole === 'admin') {
-        this.buttons.createRace.style.display = 'block';
-      } else {
-        this.buttons.createRace.style.display = 'none';
-      }
-    }
-  }
-
-  /**
-   * Check if user has admin permissions
-   * @returns {boolean} True if user is admin
-   */
-  isAdmin() {
-    return this.userRole === 'admin';
-  }
-  
-  /**
-   * Show a specific screen and hide others
-   * @param {string} screenId - The ID of the screen to show
-   */
-  showScreen(screenId) {
-    // If user is not admin, restrict access to admin-only screens
-    if (!this.isAdmin() && (screenId === 'create-race-screen' || screenId === 'race-control-screen')) {
-      showNotification('You do not have permission to access this screen', 3000);
-      return;
-    }
-    
-    document.querySelectorAll('.screen').forEach(screen => {
-      screen.classList.remove('active');
-    });
-    
-    document.getElementById(screenId).classList.add('active');
-    this.currentScreen = screenId;
-    
-    // Special handling for screens
-    if (screenId === 'race-control-screen') {
-      // Initialize timer display
-      this.raceTimer.updateDisplay();
-      // Refresh element references when showing race control screen
-      this.refreshElementReferences();
-    }
-  }
-  
-  /**
    * Create a new race
    */
   async createRace() {
-    // Check if user has admin permissions
-    if (!this.isAdmin()) {
-      showNotification('You do not have permission to create races', 3000);
-      return;
-    }
     
     const nameInput = document.getElementById('race-name');
     const dateInput = document.getElementById('race-date');
@@ -301,32 +207,12 @@ class RaceControlApp {
           
           const date = new Date(race.date).toLocaleDateString();
           
-          // Determine which buttons to show based on user role
-          const isAdmin = this.isAdmin();
-          
           raceCard.innerHTML = `
             <h3>${race.name}</h3>
             <p>Date: ${date}</p>
             <p>Status: ${status}</p>
-            <div class="race-card-buttons">
-              ${isAdmin ? '<button class="primary-button control-button">Control Race</button>' : ''}
-              <button class="secondary-button results-button">View Results</button>
-              <button class="export-button export-csv-button">Export CSV</button>
-              ${isAdmin ? '<button class="danger-button delete-button">Delete Race</button>' : ''}
-            </div>
           `;
           
-          // Add event listeners only for buttons that exist
-          if (isAdmin) {
-            raceCard.querySelector('.control-button').addEventListener('click', () => {
-              this.loadRaceControl(race.id);
-            });
-            
-            raceCard.querySelector('.delete-button').addEventListener('click', (e) => {
-              e.stopPropagation();
-              this.deleteRace(race.id);
-            });
-          }
           
           raceCard.querySelector('.results-button').addEventListener('click', () => {
             this.loadRaceResults(race.id);
@@ -355,11 +241,6 @@ class RaceControlApp {
    * @param {number} raceId - The ID of the race to delete
    */
   async deleteRace(raceId) {
-    // Check if user has admin permissions
-    if (!this.isAdmin()) {
-      showNotification('You do not have permission to delete races', 3000);
-      return;
-    }
     
     if (!confirm('Are you sure you want to delete this race? This action cannot be undone.')) {
       return;
@@ -396,11 +277,6 @@ class RaceControlApp {
    * @param {number} raceId - The ID of the race to control
    */
   async loadRaceControl(raceId) {
-    // Check if user has admin permissions
-    if (!this.isAdmin()) {
-      showNotification('You do not have permission to control races', 3000);
-      return;
-    }
     
     try {
       // Check if we're online first to load race details
@@ -505,11 +381,6 @@ class RaceControlApp {
    * Start the race
    */
   async startRace() {
-    // Check if user has admin permissions
-    if (!this.isAdmin()) {
-      showNotification('You do not have permission to start races', 3000);
-      return;
-    }
     
     if (!this.currentRaceId) {
       showNotification('No race selected', 3000);
@@ -574,11 +445,6 @@ class RaceControlApp {
    * Record a runner finish
    */
   recordFinish() {
-    // Check if user has admin permissions
-    if (!this.isAdmin()) {
-      showNotification('You do not have permission to record finishes', 3000);
-      return;
-    }
     
     if (!this.currentRaceId) {
       showNotification('No race selected', 3000);
@@ -690,11 +556,6 @@ class RaceControlApp {
    * End the race
    */
   async endRace() {
-    // Check if user has admin permissions
-    if (!this.isAdmin()) {
-      showNotification('You do not have permission to end races', 3000);
-      return;
-    }
     
     if (!this.currentRaceId) {
       showNotification('No race selected', 3000);
@@ -761,11 +622,6 @@ class RaceControlApp {
    * Upload race results to the server
    */
   async uploadResults() {
-    // Check if user has admin permissions
-    if (!this.isAdmin()) {
-      showNotification('You do not have permission to upload results', 3000);
-      return;
-    }
     
     if (!this.currentRaceId) {
       showNotification('No race selected', 3000);
@@ -823,11 +679,6 @@ class RaceControlApp {
    * Clear recorded results
    */
   clearResults() {
-    // Check if user has admin permissions
-    if (!this.isAdmin()) {
-      showNotification('You do not have permission to clear results', 3000);
-      return;
-    }
     
     if (this.results.length === 0) {
       return;
